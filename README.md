@@ -20,6 +20,15 @@ Three.js で作った、ブロック調の一人称3Dミニゲーム集です。
 - 数字キー: 建物・作物の選択（タイクーン・スローライフ）
 - Esc: 一覧へ戻る（マウス視点の解除後に押す）/ R: やり直し
 
+### タッチ操作（スマートフォン・タブレット）
+
+タッチ端末では画面内に操作ボタンが出ます。
+- 左下のスティック: 移動（前後左右）
+- 右側の画面をなぞる: 視点を見回す
+- 右下の「行動」: 攻撃・設置・収穫（E キーと同じ）
+- 右下の「ジャンプ」「走る」: 押している間だけ有効
+- 右上の数字ボタン: 建物・作物の選択（タイクーン 4 種・スローライフ 5 種）
+
 ## 構成
 
 ```
@@ -27,6 +36,7 @@ index.html              メニューとゲーム画面（Three.js r160 を jsDel
 js/common.js            共通（乱数、配色）
 js/core/world.js        物理・プレイヤー操作・照準（描画に依存しない純粋な JS）
 js/core/render.js       描画・影・光・パーティクル・効果音（Three.js）
+js/core/touch.js        タッチ操作（画面内のスティック・ボタン・視点のなぞり）
 js/games/kit.js         共通の部品（キャラクター、木・岩・ランプ、遠景の島、草むら、足場）
 js/games/*.js           ジャンルごとのルール（create(config) が build / update / status を返す）
 js/catalog.js           500ゲームの定義（テーマ・難易度・ルールの variant・配色・seed）
@@ -37,6 +47,7 @@ tests/bots.js           ジャンルごとの攻略ボット
 tests/smoke.js          全500ゲームを生成し、ランダム入力で動かす
 tests/playtest.js       ボットで全500ゲームを攻略する（クリア率・所要時間）
 tests/browser-playtest.js  ヘッドレス Chromium で実際のキー・マウス入力を送って確認する
+tests/touch-playtest.js    タッチ端末として、画面内の操作ボタンを実際のタッチ入力で確認する
 tests/shots.js          各ゲームの画面を撮影する（描画の目視確認用）
 ```
 
@@ -50,6 +61,7 @@ URL に `#brainrot-001` のように付けると、そのゲームを直接開�
 node tests/smoke.js                 # 全500ゲームが例外なく動く・カタログの整合性
 node tests/playtest.js              # 攻略ボットで全500ゲームを攻略（ジャンル指定と -v も可）
 THREE_LOCAL=path/to/three.min.js node tests/browser-playtest.js   # ブラウザでの実操作
+THREE_LOCAL=path/to/three.min.js node tests/touch-playtest.js    # タッチ操作
 THREE_LOCAL=path/to/three.min.js node tests/shots.js out-dir      # 画面の撮影
 ```
 
@@ -60,6 +72,6 @@ THREE_LOCAL=path/to/three.min.js node tests/shots.js out-dir      # 画面の撮
 ## 既知の制限
 
 - 描画はブラウザの WebGL に依存します。低性能な端末では、影や草むらの量を減らす必要があるかもしれません。
-- スマートフォンのタッチ操作には未対応です（マウスとキーボード前提）。
+- タッチ操作は実機で試していません（ヘッドレスのタッチ入力で確かめています）。
 - 物理と見た目は実際のブラウザで確かめていますが、人間が遊んだときの難易度や操作感は未検証です。
 - アスレチックの 1 ゲーム（athletic-020）は、ボットではクリアできません（足場の到達は確認済み）。

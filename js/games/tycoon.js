@@ -225,6 +225,7 @@
     help: '数字キーで建物を選び、マスに照準を合わせて左クリック（またはE）。建物に合わせると強化できます。',
     spawn: { x: 0, y: 0, z: 12, yaw: 0 },
     viewmodel: { kind: 'hammer', color: 0xf39c12 },
+    digits: 4, // 数字ボタンの数（タッチ操作用）
     theme: (p) => ({ sky: p.sky, horizon: R_mix(p.sky, '#ffffff', 0.4), ground: p.ground, fog: 0.008, night: '#16213e', sunT: 0.28 }),
     create,
   };

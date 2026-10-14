@@ -83,11 +83,12 @@
     if (type.viewmodel) R.viewmodel(type.viewmodel.kind, type.viewmodel.color);
     lastState = 'playing';
     $('title').textContent = item.title;
-    $('help').textContent = type.help;
+    $('help').textContent = type.help + (g.Touch.isTouch() ? ' タッチ: 左下のスティックで移動、右側をなぞって見回す、右下のボタンで操作。' : '');
+    g.Touch.show(type.digits || 0);
     $('result').hidden = true;
     $('menu').hidden = true;
     $('play').hidden = false;
-    hintDismissed = false;
+    hintDismissed = g.Touch.isTouch(); // タッチ端末では案内を出さない
     last = performance.now();
     rafId = requestAnimationFrame(loop);
     // 画面を表示した直後にキャンバスの実寸を取り直す
@@ -105,6 +106,7 @@
     input.keys.clear();
     input.pressed.clear();
     if (document.pointerLockElement) document.exitPointerLock();
+    g.Touch.hide();
     $('play').hidden = true;
     $('result').hidden = true;
     $('menu').hidden = false;
@@ -142,7 +144,7 @@
   }
 
   function updateLockHint() {
-    $('lockhint').hidden = !!document.pointerLockElement || !type || hintDismissed;
+    $('lockhint').hidden = !!document.pointerLockElement || !type || hintDismissed || g.Touch.isTouch();
   }
 
   // ---- 入力 ----
@@ -173,6 +175,7 @@
   canvas.addEventListener('pointerdown', (e) => {
     if (!game) return;
     R.unlockAudio();
+    if (e.pointerType === 'touch') return; // タッチの操作は画面内のボタンで行う
     hintDismissed = true;
     updateLockHint();
     if (!document.pointerLockElement) {
@@ -214,6 +217,7 @@
     renderMenu();
   };
 
+  g.Touch.init();
   renderMenu();
 
   // #brainrot-001 のようなURLで直接ゲームを開ける（URLが変わったときも開く）

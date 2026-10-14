@@ -31,7 +31,7 @@
   /* ---- ゲーム画面 ---- */
   #play { padding: 0 16px 24px; }
   #play .toolbar strong { flex: 1; text-align: center; }
-  .stage { position: relative; max-width: 960px; margin: 0 auto; aspect-ratio: 16 / 10; border-radius: 14px; overflow: hidden; background: #0b0f1a; box-shadow: 0 10px 30px rgba(0,0,0,0.35); user-select: none; }
+  .stage { touch-action: none; position: relative; max-width: 960px; margin: 0 auto; aspect-ratio: 16 / 10; border-radius: 14px; overflow: hidden; background: #0b0f1a; box-shadow: 0 10px 30px rgba(0,0,0,0.35); user-select: none; }
   #screen { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; }
   #vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, rgba(0,0,0,0) 60%, rgba(0,0,0,0.35) 100%); }
   #flash { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.05s; }
@@ -54,6 +54,21 @@
   #result .row { display: flex; gap: 10px; }
   .bar { height: 8px; max-width: 960px; margin: 12px auto 4px; background: var(--line); border-radius: 4px; overflow: hidden; }
   #bar { height: 100%; width: 0; background: #2ecc71; transition: width 0.2s; }
+  /* ---- タッチ操作（画面内のボタン） ---- */
+  #touch { position: absolute; inset: 0; pointer-events: none; }
+  #touch[hidden] { display: none !important; }
+  .ctl { pointer-events: auto; touch-action: none; user-select: none; -webkit-user-select: none; background: rgba(255,255,255,0.22); color: #fff; border: 2px solid rgba(255,255,255,0.5); font-weight: 800; border-radius: 16px; min-width: 64px; min-height: 64px; padding: 0; font-size: 15px; box-shadow: 0 4px 14px rgba(0,0,0,0.25); backdrop-filter: blur(2px); }
+  .ctl.on { background: rgba(255,255,255,0.5); transform: scale(0.96); }
+  #joy { position: absolute; left: 18px; bottom: 18px; width: 136px; height: 136px; border-radius: 50%; background: rgba(255,255,255,0.14); border: 2px solid rgba(255,255,255,0.45); pointer-events: auto; touch-action: none; }
+  #joyknob { position: absolute; left: 50%; top: 50%; width: 58px; height: 58px; margin: -29px 0 0 -29px; border-radius: 50%; background: rgba(255,255,255,0.55); box-shadow: 0 3px 10px rgba(0,0,0,0.3); pointer-events: none; }
+  #tbtns { position: absolute; right: 16px; bottom: 16px; display: grid; grid-template-columns: repeat(2, auto); gap: 10px; pointer-events: none; }
+  #tbtns .ctl { width: 84px; height: 84px; }
+  #tbtns .ctl.wide { grid-column: span 2; height: 58px; min-height: 58px; }
+  #tDigits { position: absolute; right: 16px; top: 62px; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .ctl.digit { width: 52px; min-width: 52px; height: 52px; min-height: 52px; font-size: 18px; }
+  @media (max-width: 640px) {
+    #tbtns .ctl { width: 74px; height: 74px; }
+  }
   .help { max-width: 960px; margin: 8px auto 0; opacity: 0.75; font-size: 14px; }
   @media (max-width: 640px) {
     .pop { font-size: 16px; }
@@ -91,6 +106,15 @@
       <div id="hint"></div>
     </div>
     <div id="lockhint"><span>クリックでマウス視点を開始（Escで解除）</span></div>
+    <div id="touch" hidden>
+      <div id="joy"><div id="joyknob"></div></div>
+      <div id="tDigits"></div>
+      <div id="tbtns">
+        <button class="ctl" id="tJump">ジャンプ</button>
+        <button class="ctl" id="tAct">行動</button>
+        <button class="ctl wide" id="tRun">走る</button>
+      </div>
+    </div>
     <div id="result" hidden>
       <div class="box">
         <h2 id="result-title"></h2>
@@ -118,6 +142,7 @@
 <script src="js/games/slowlife.js"></script>
 <script src="js/games/athletic.js"></script>
 <script src="js/catalog.js"></script>
+<script src="js/core/touch.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

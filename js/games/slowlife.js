@@ -292,6 +292,7 @@
     help: '数字キーで作物を選び、畑に照準を合わせて左クリック（またはE）で植える。実った作物を収穫しましょう。',
     spawn: { x: 0, y: 0, z: 11, yaw: 0 },
     viewmodel: { kind: 'trowel', color: 0x8d6e63 },
+    digits: 5,
     theme: (p) => ({ sky: p.sky, horizon: R_mix(p.sky, '#ffffff', 0.5), ground: p.ground, fog: 0.007, night: '#0d1b3e', sunT: 0.2 }),
     create,
   };

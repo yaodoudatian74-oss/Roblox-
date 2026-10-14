@@ -104,6 +104,7 @@
       pressed: new Set(), // このフレームに押されたキー
       dx: 0, // マウス移動量（視点）
       dy: 0,
+      joy: { x: 0, y: 0 }, // タッチのジョイスティック（-1〜1。上が前）
       fire: false, // このフレームの「行動」（左クリック / Eキー）
       lookSens: 0.0022,
     },
@@ -183,8 +184,10 @@
       inp.dy = 0;
 
       const k = inp.keys;
-      const sy = (k.has('KeyW') || k.has('ArrowUp') ? 1 : 0) - (k.has('KeyS') || k.has('ArrowDown') ? 1 : 0);
-      const sx = (k.has('KeyD') || k.has('ArrowRight') ? 1 : 0) - (k.has('KeyA') || k.has('ArrowLeft') ? 1 : 0);
+      const kz = (k.has('KeyW') || k.has('ArrowUp') ? 1 : 0) - (k.has('KeyS') || k.has('ArrowDown') ? 1 : 0);
+      const kx = (k.has('KeyD') || k.has('ArrowRight') ? 1 : 0) - (k.has('KeyA') || k.has('ArrowLeft') ? 1 : 0);
+      const sy = clamp(kz - inp.joy.y, -1, 1);
+      const sx = clamp(kx + inp.joy.x, -1, 1);
       const fx = -Math.sin(p.yaw);
       const fz = -Math.cos(p.yaw);
       const rx = Math.cos(p.yaw);
