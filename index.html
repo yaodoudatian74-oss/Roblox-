@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roblox風ミニゲーム 500選</title>
+<style>
+  :root { --bg: #eef6ff; --fg: #1e272e; --card: #ffffff; --accent: #4a90e2; --line: #d0dbe8; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #1e272e; --fg: #f5f6fa; --card: #2d3436; --accent: #74b9ff; --line: #485460; }
+  }
+  :root[data-theme="dark"] { --bg: #1e272e; --fg: #f5f6fa; --card: #2d3436; --accent: #74b9ff; --line: #485460; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: system-ui, sans-serif; }
+  header { padding: 16px; }
+  h1 { margin: 0; font-size: 22px; }
+  button, input { font: inherit; }
+  button { cursor: pointer; border: 0; border-radius: 8px; padding: 8px 12px; background: var(--accent); color: #fff; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 0 16px 12px; }
+  .toolbar input { flex: 1; min-width: 160px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--fg); }
+  .tab { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+  .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  #tabs { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 16px 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; padding: 0 16px 24px; }
+  .card { background: var(--card); color: var(--fg); border: 1px solid var(--line); text-align: left; display: flex; flex-direction: column; gap: 4px; }
+  .card:hover { border-color: var(--accent); }
+  .card small { opacity: 0.6; }
+  .card .name { font-weight: 700; }
+  .card .stars { color: #f1c40f; letter-spacing: 1px; font-size: 13px; }
+  #play { padding: 0 16px 24px; }
+  #play .toolbar strong { flex: 1; text-align: center; }
+  canvas { display: block; width: 100%; max-width: 800px; height: auto; margin: 0 auto; border-radius: 12px; background: #000; }
+  .bar { height: 8px; max-width: 800px; margin: 12px auto 4px; background: var(--line); border-radius: 4px; overflow: hidden; }
+  #bar { height: 100%; width: 0; background: #2ecc71; transition: width 0.2s; }
+  #hud { max-width: 800px; margin: 0 auto; font-weight: 600; }
+  .help { max-width: 800px; margin: 8px auto 0; opacity: 0.75; font-size: 14px; }
+</style>
+</head>
+<body>
+<section id="menu">
+  <header><h1>Roblox風ミニゲーム 500選</h1></header>
+  <nav id="tabs"></nav>
+  <div class="toolbar">
+    <input id="search" type="search" placeholder="タイトルや番号で検索（例: 003）">
+    <span id="count"></span>
+  </div>
+  <main id="grid" class="grid"></main>
+</section>
+
+<section id="play" hidden>
+  <div class="toolbar">
+    <button id="backBtn">← 一覧 (Esc)</button>
+    <strong id="title"></strong>
+    <button id="restartBtn">やり直す (R)</button>
+  </div>
+  <canvas id="screen" width="800" height="500"></canvas>
+  <div class="bar"><div id="bar"></div></div>
+  <div id="hud"></div>
+  <p id="help" class="help"></p>
+</section>
+
+<script src="js/common.js"></script>
+<script src="js/games/brainrot.js"></script>
+<script src="js/games/tycoon.js"></script>
+<script src="js/games/rpg.js"></script>
+<script src="js/games/slowlife.js"></script>
+<script src="js/games/athletic.js"></script>
+<script src="js/catalog.js"></script>
+<script src="js/engine.js"></script>
+</body>
+</html>
