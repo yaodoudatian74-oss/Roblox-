@@ -11,7 +11,7 @@
   }
   :root[data-theme="dark"] { --bg: #1e272e; --fg: #f5f6fa; --card: #2d3436; --accent: #74b9ff; --line: #485460; }
   [hidden] { display: none !important; }
-  body { margin: 0; background: var(--bg); color: var(--fg); font-family: system-ui, sans-serif; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: system-ui, "Hiragino Sans", "Yu Gothic UI", sans-serif; }
   header { padding: 16px; }
   h1 { margin: 0; font-size: 22px; }
   button, input { font: inherit; }
@@ -27,18 +27,44 @@
   .card small { opacity: 0.6; }
   .card .name { font-weight: 700; }
   .card .stars { color: #f1c40f; letter-spacing: 1px; font-size: 13px; }
+
+  /* ---- ゲーム画面 ---- */
   #play { padding: 0 16px 24px; }
   #play .toolbar strong { flex: 1; text-align: center; }
-  canvas { display: block; width: 100%; max-width: 800px; height: auto; margin: 0 auto; border-radius: 12px; background: #000; }
-  .bar { height: 8px; max-width: 800px; margin: 12px auto 4px; background: var(--line); border-radius: 4px; overflow: hidden; }
+  .stage { position: relative; max-width: 960px; margin: 0 auto; aspect-ratio: 16 / 10; border-radius: 14px; overflow: hidden; background: #0b0f1a; box-shadow: 0 10px 30px rgba(0,0,0,0.35); user-select: none; }
+  #screen { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; }
+  #vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, rgba(0,0,0,0) 60%, rgba(0,0,0,0.35) 100%); }
+  #flash { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.05s; }
+  #popups { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .pop { position: absolute; left: 0; top: 0; font-weight: 900; font-size: 20px; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,0.5), 0 0 8px rgba(0,0,0,0.4); white-space: nowrap; opacity: 0; will-change: transform; }
+  #crosshair { position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; pointer-events: none; }
+  #crosshair::before, #crosshair::after { content: ""; position: absolute; background: rgba(255,255,255,0.9); box-shadow: 0 0 0 1px rgba(0,0,0,0.35); }
+  #crosshair::before { left: 6px; top: 0; width: 2px; height: 14px; }
+  #crosshair::after { left: 0; top: 6px; width: 14px; height: 2px; }
+  #toast { position: absolute; left: 50%; top: 14%; transform: translateX(-50%); padding: 8px 16px; border-radius: 999px; background: rgba(0,0,0,0.55); color: #fff; font-weight: 700; opacity: 0; transition: opacity 0.25s; pointer-events: none; white-space: nowrap; }
+  #hudbox { position: absolute; left: 12px; right: 12px; top: 10px; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
+  #hud { align-self: flex-start; padding: 6px 12px; border-radius: 10px; background: rgba(0,0,0,0.5); color: #fff; font-weight: 700; font-size: 14px; }
+  #hint { align-self: flex-start; padding: 5px 10px; border-radius: 8px; background: rgba(0,0,0,0.35); color: #fff; font-size: 13px; }
+  #lockhint { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); color: #fff; font-weight: 700; font-size: 13px; text-align: center; pointer-events: none; white-space: nowrap; }
+  #lockhint span { display: inline-block; padding: 7px 14px; border-radius: 999px; background: rgba(0,0,0,0.5); }
+  #result { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); color: #fff; text-align: center; padding: 20px; }
+  #result .box { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+  #result h2 { margin: 0; font-size: 40px; }
+  #result p { margin: 0; opacity: 0.85; }
+  #result .row { display: flex; gap: 10px; }
+  .bar { height: 8px; max-width: 960px; margin: 12px auto 4px; background: var(--line); border-radius: 4px; overflow: hidden; }
   #bar { height: 100%; width: 0; background: #2ecc71; transition: width 0.2s; }
-  #hud { max-width: 800px; margin: 0 auto; font-weight: 600; }
-  .help { max-width: 800px; margin: 8px auto 0; opacity: 0.75; font-size: 14px; }
+  .help { max-width: 960px; margin: 8px auto 0; opacity: 0.75; font-size: 14px; }
+  @media (max-width: 640px) {
+    .pop { font-size: 16px; }
+    #hud { font-size: 12px; }
+    #hint { font-size: 11px; }
+  }
 </style>
 </head>
 <body>
 <section id="menu">
-  <header><h1>Roblox風ミニゲーム 500選</h1></header>
+  <header><h1>Roblox風ミニゲーム 500選（3D一人称）</h1></header>
   <nav id="tabs"></nav>
   <div class="toolbar">
     <input id="search" type="search" placeholder="タイトルや番号で検索（例: 003）">
@@ -53,19 +79,45 @@
     <strong id="title"></strong>
     <button id="restartBtn">やり直す (R)</button>
   </div>
-  <canvas id="screen" width="800" height="500"></canvas>
+  <div class="stage" id="stage">
+    <canvas id="screen"></canvas>
+    <div id="popups"></div>
+    <div id="vignette"></div>
+    <div id="flash"></div>
+    <div id="crosshair"></div>
+    <div id="toast"></div>
+    <div id="hudbox">
+      <div id="hud"></div>
+      <div id="hint"></div>
+    </div>
+    <div id="lockhint"><span>クリックでマウス視点を開始（Escで解除）</span></div>
+    <div id="result" hidden>
+      <div class="box">
+        <h2 id="result-title"></h2>
+        <p id="result-text"></p>
+        <div class="row">
+          <button id="resultRetry">もう一度 (R)</button>
+          <button id="resultBack">一覧へ</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="bar"><div id="bar"></div></div>
-  <div id="hud"></div>
   <p id="help" class="help"></p>
 </section>
 
+<!-- 3D描画ライブラリ（Three.js r160）。cdnjs / jsDelivr の固定バージョン -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="js/common.js"></script>
+<script src="js/core/world.js"></script>
+<script src="js/core/render.js"></script>
+<script src="js/games/kit.js"></script>
 <script src="js/games/brainrot.js"></script>
 <script src="js/games/tycoon.js"></script>
 <script src="js/games/rpg.js"></script>
 <script src="js/games/slowlife.js"></script>
 <script src="js/games/athletic.js"></script>
 <script src="js/catalog.js"></script>
-<script src="js/engine.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>

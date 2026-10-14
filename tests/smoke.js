@@ -1,29 +1,10 @@
 'use strict';
-// ヘッドレス確認: 500ゲームすべてをランダム入力で動かし、例外が出ないこととカタログの整合性を確認する。
+// ヘッドレス確認: 500ゲームすべてを生成し、ランダム入力で動かして例外が出ないことを確認する。
 // 実行: node tests/smoke.js
-const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
+const { load } = require('./load');
 
-const root = path.join(__dirname, '..');
-const files = [
-  'js/common.js',
-  'js/games/brainrot.js',
-  'js/games/tycoon.js',
-  'js/games/rpg.js',
-  'js/games/slowlife.js',
-  'js/games/athletic.js',
-  'js/catalog.js',
-];
-
-const sandbox = { console };
-sandbox.window = sandbox;
-vm.createContext(sandbox);
-for (const f of files) {
-  vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), sandbox, { filename: f });
-}
-
-const { CATALOG, CATALOG_ORDER, GAME_TYPES, Common } = sandbox;
+const sb = load();
+const { CATALOG, CATALOG_ORDER, GAME_TYPES, World: W, Common } = sb;
 
 function assert(cond, msg) {
   if (!cond) {
@@ -32,75 +13,53 @@ function assert(cond, msg) {
   }
 }
 
-// カタログ整合性
 assert(CATALOG.length === 500, `total games should be 500, got ${CATALOG.length}`);
 for (const genre of CATALOG_ORDER) {
   const items = CATALOG.filter((c) => c.genre === genre);
   assert(items.length === 100, `${genre} should have 100 games, got ${items.length}`);
-  const titles = new Set(items.map((c) => c.title));
-  assert(titles.size === 100, `${genre} titles should be unique`);
+  assert(new Set(items.map((c) => c.title)).size === 100, `${genre} titles should be unique`);
+  assert(typeof GAME_TYPES[genre].theme === 'function', `${genre} needs a theme()`);
+  assert(GAME_TYPES[genre].spawn, `${genre} needs a spawn`);
 }
-const ids = new Set(CATALOG.map((c) => c.id));
-assert(ids.size === 500, 'ids should be unique');
+assert(new Set(CATALOG.map((c) => c.id)).size === 500, 'ids should be unique');
 
-// ダミーの描画コンテキスト（呼び出しを無視する）
-function makeCtx() {
-  const noop = () => {};
-  return new Proxy(
-    {},
-    {
-      get: (t, k) => (k in t ? t[k] : (t[k] = noop)),
-      set: (t, k, v) => ((t[k] = v), true),
-    }
-  );
-}
+const KEYSETS = [[], ['KeyW'], ['KeyW', 'ShiftLeft'], ['KeyA'], ['KeyD'], ['KeyS'], ['Space'], ['KeyW', 'Space']];
 
-const KEYSETS = [
-  [],
-  ['ArrowLeft'],
-  ['ArrowRight'],
-  ['ArrowUp'],
-  ['ArrowDown'],
-  ['Space'],
-  ['KeyD', 'Space'],
-  ['KeyS'],
-];
-
-// 1ゲームを60秒分（30fps相当）ランダム入力で動かす
 function run(item) {
   const rng = Common.mulberry32(item.seed ^ 0x9e3779b9);
-  const game = GAME_TYPES[item.genre].create(item);
-  const keys = new Set();
-  const input = { keys };
-  const ctx = makeCtx();
+  const type = GAME_TYPES[item.genre];
+  W.reset({ spawn: type.spawn, G: 24, jump: 8.4, voidY: -20, floor: !type.noFloor });
+  const game = type.create(item);
+  game.build();
   const DT = 1 / 30;
-  const FRAMES = 1800;
-
-  for (let f = 0; f < FRAMES; f++) {
+  for (let f = 0; f < 1800; f++) {
     if (f % 30 === 0) {
-      keys.clear();
-      for (const k of KEYSETS[Math.floor(rng() * KEYSETS.length)]) keys.add(k);
+      W.input.keys.clear();
+      for (const k of KEYSETS[Math.floor(rng() * KEYSETS.length)]) W.input.keys.add(k);
     }
-    if (game.keydown && rng() < 0.02) game.keydown('Digit' + (1 + Math.floor(rng() * 5)));
-    if (game.click && rng() < 0.05) game.click(rng() * 800, rng() * 500);
-    game.update(DT, input);
-    game.draw(ctx);
+    W.input.dx = (rng() - 0.5) * 30;
+    W.input.dy = (rng() - 0.5) * 30;
+    if (rng() < 0.03) W.input.fire = true;
+    if (rng() < 0.02) W.input.pressed.add('Digit' + (1 + Math.floor(rng() * 5)));
+    W.step(DT);
+    game.update(DT);
     const s = game.status();
     if (typeof s.progress !== 'number' || !Number.isFinite(s.progress) || typeof s.label !== 'string') {
       throw new Error(`${item.id}: malformed status at frame ${f}`);
     }
-    if (s.state !== 'playing') return { state: s.state, frame: f };
+    W.endFrame();
+    if (s.state !== 'playing') return s.state;
   }
-  return { state: game.status().state, frame: FRAMES };
+  return game.status().state;
 }
 
 const summary = {};
 for (const item of CATALOG) {
-  const r = run(item);
-  const key = `${item.genre}:${r.state}`;
+  const state = run(item);
+  const key = `${item.genre}:${state}`;
   summary[key] = (summary[key] || 0) + 1;
 }
 
-console.log('OK: all 500 games ran without exceptions');
+console.log('OK: all 500 games built and ran without exceptions');
 console.log('results with random input (not a balance test):');
 for (const k of Object.keys(summary).sort()) console.log(`  ${k}: ${summary[k]}`);
