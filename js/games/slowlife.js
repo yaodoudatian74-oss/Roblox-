@@ -131,7 +131,12 @@
       };
     }
 
-    return { update, draw, click, keydown, status };
+    // テスト（tests/playtest.js）用
+    function inspect() {
+      return { tiles, crops, coins, sel, cellCenter: (i) => [OX + (i % COLS) * CELL + CELL / 2, OY + Math.floor(i / COLS) * CELL + CELL / 2] };
+    }
+
+    return { update, draw, click, keydown, status, inspect };
   }
 
   g.GAME_TYPES.slowlife = {

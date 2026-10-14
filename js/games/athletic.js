@@ -10,16 +10,17 @@
     const v = cfg.variant;
     const gravity = 1400 * (1 + 0.2 * d);
     const jumpV = [520, 540, 560, 580, 600][v];
-    const len = 2500 + Math.round(d * 3500);
+    const len = 5000 + Math.round(d * 5000);
 
-    // 足場を左から順に生成。ジャンプで届く範囲（横は約120px、上は約60px）に収める
+    // 足場を左から順に生成。ジャンプで届く範囲に収める（間隔は最大100px、上りの高低差は最大45px。
+    // 間隔が広い・上りが急だと届かない足場ができるため、tests/playtest.js の到達確認で検証している）
     const plats = [{ x: 0, y: 380, w: 320 }];
     let x = 320;
     let y = 380;
     while (x < len) {
-      x += 40 + rng() * (100 - 20 * d);
-      const w = 120 + rng() * (260 - 120 * d);
-      y = C.clamp(y + (-60 + rng() * 110), 200, 420);
+      x += 40 + rng() * (60 - 10 * d);
+      const w = 90 + rng() * (220 - 110 * d);
+      y = C.clamp(y + (-45 + rng() * 95), 200, 420);
       plats.push({ x, y, w });
       x += w;
     }
@@ -43,7 +44,7 @@
 
       pl.vy += gravity * dt;
       const prevBottom = pl.y + pl.h;
-      pl.x = C.clamp(pl.x + pl.vx * dt, 0, len + 200);
+      pl.x = C.clamp(pl.x + pl.vx * dt, 0, flagX + 200);
       pl.y += pl.vy * dt;
       pl.on = false;
 
@@ -108,7 +109,12 @@
       };
     }
 
-    return { update, draw, status };
+    // テスト（tests/playtest.js）用: 足場とゴールの位置を読む
+    function inspect() {
+      return { plats, flagX, player: pl, gravity, jumpV, runSpeed: RUN_SPEED };
+    }
+
+    return { update, draw, status, inspect };
   }
 
   g.GAME_TYPES.athletic = {

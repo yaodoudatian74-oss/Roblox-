@@ -7,7 +7,8 @@
     const p = cfg.palette;
     const d = cfg.difficulty;
     const v = cfg.variant;
-    const goal = Math.round(300 + d * 2200);
+    // 収入は回収数に比例して増えるため、目標は2次関数的にクリア時間が伸びる（x60で数分規模）
+    const goal = Math.round((300 + d * 2200) * 60);
     const spawnEvery = 2.2 - 1.2 * d - (v === 2 ? 0.6 : 0);
     const rareChance = [0.05, 0.1, 0.02, 0.15, 0.08][v];
 
@@ -94,7 +95,12 @@
       };
     }
 
-    return { update, draw, status };
+    // テスト（tests/playtest.js）用
+    function inspect() {
+      return { player, wild, rate, score, goal };
+    }
+
+    return { update, draw, status, inspect };
   }
 
   g.GAME_TYPES.brainrot = {

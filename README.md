@@ -37,7 +37,11 @@ URL に `#brainrot-001` のように付けると、そのゲームを直接開�
 ## テスト
 
 ```
-node tests/smoke.js
+node tests/smoke.js        # 全500ゲームが例外なく動く・カタログの整合性
+node tests/playtest.js     # ジャンルごとの攻略ボットで全500ゲームをプレイ（クリア率・所要時間）
+node tests/browser-playtest.js   # ヘッドレスChromiumで実際のキー・マウス入力を送って確認
 ```
 
-全500ゲームが例外なく動くこと、カタログが各ジャンル100件・タイトルが一意であることを確認します。ゲームのバランス（クリア可能性）はこのテストでは確認していません。
+`playtest.js` は `node tests/playtest.js rpg -v` のように、ジャンルとゲームごとの結果を指定できます。ボットは実際のプレイヤーと同じ入力（キーとクリック）だけで操作します。ボットの結果はバランスの目安であり、人間の攻略難易度とは一致しない場合があります。
+
+`browser-playtest.js` は Playwright が必要です。`CHROME_PATH` でブラウザの実行ファイルを指定できます。

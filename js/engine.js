@@ -30,8 +30,9 @@
     }
 
     const q = query.trim().toLowerCase();
+    const num = /^\d+$/.test(q) ? Number(q) : null; // "003" と "3" はどちらも番号3に一致させる
     const items = g.CATALOG.filter(
-      (c) => c.genre === currentGenre && (!q || c.title.toLowerCase().includes(q) || String(c.no) === q)
+      (c) => c.genre === currentGenre && (!q || c.title.toLowerCase().includes(q) || c.no === num)
     );
     const grid = $('grid');
     grid.replaceChildren();
@@ -135,7 +136,11 @@
 
   renderMenu();
 
-  // #brainrot-001 のようなURLで直接ゲームを開ける
-  const initial = g.CATALOG.find((c) => c.id === location.hash.slice(1));
-  if (initial) open(initial);
+  // #brainrot-001 のようなURLで直接ゲームを開ける（URLが変わったときも開く）
+  function openFromHash() {
+    const item = g.CATALOG.find((c) => c.id === location.hash.slice(1));
+    if (item) open(item);
+  }
+  window.addEventListener('hashchange', openFromHash);
+  openFromHash();
 })(window);

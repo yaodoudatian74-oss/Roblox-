@@ -22,7 +22,8 @@
     }));
 
     const cells = new Array(COLS * ROWS).fill(null);
-    let cash = 30;
+    // 最初の建物が買えないと収入がゼロのまま止まるため、最安の建物2つ分を初期資金にする
+    let cash = types[0].cost * 2;
     let earned = 0;
     let sel = 0;
     let state = 'playing';
@@ -120,7 +121,12 @@
       };
     }
 
-    return { update, draw, click, keydown, status };
+    // テスト（tests/playtest.js）用
+    function inspect() {
+      return { cells, types, cash, sel, income: income(), cellCenter: (i) => [OX + (i % COLS) * CELL + CELL / 2, OY + Math.floor(i / COLS) * CELL + CELL / 2], upgradeCost, COLS, ROWS };
+    }
+
+    return { update, draw, click, keydown, status, inspect };
   }
 
   g.GAME_TYPES.tycoon = {

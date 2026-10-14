@@ -23,7 +23,7 @@
       const x = side === 0 ? -20 : side === 1 ? C.W + 20 : rng() * C.W;
       const y = side === 2 ? -20 : side === 3 ? C.H + 20 : rng() * C.H;
       const big = rng() < 0.2;
-      const hp = (20 + d * 40) * (big ? 2.5 : 1);
+      const hp = (20 + d * 30) * (big ? 2.5 : 1);
       mobs.push({
         x,
         y,
@@ -31,7 +31,7 @@
         maxHp: hp,
         big,
         speed: (50 + rng() * 30 + d * 30) * speedMul,
-        dmg: (big ? 12 : 6) * (1 + d),
+        dmg: (big ? 12 : 6) * (1 + 0.5 * d),
         name: cfg.names[Math.floor(rng() * cfg.names.length)],
         hit: 0,
         touch: 0,
@@ -77,7 +77,7 @@
       if (input.keys.has('Space') && hero.cool <= 0) attack();
 
       spawnTimer += dt;
-      if (spawnTimer >= Math.max(0.5, 2.4 - 1.6 * d) && mobs.length < 14) {
+      if (spawnTimer >= Math.max(0.9, 2.6 - 1.2 * d) && mobs.length < 14) {
         spawnTimer = 0;
         spawn();
       }
@@ -149,7 +149,12 @@
       };
     }
 
-    return { update, draw, click, status };
+    // テスト（tests/playtest.js）用
+    function inspect() {
+      return { hero, mobs, kills, goal, cool: hero.cool };
+    }
+
+    return { update, draw, click, status, inspect };
   }
 
   g.GAME_TYPES.rpg = {
